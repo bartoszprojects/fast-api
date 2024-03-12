@@ -13,6 +13,11 @@ services:
       - './db/initdb.d:/docker-entrypoint-initdb.d:ro'
     ports:
       - '5432:5432'
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d postgres_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   adminer:
     container_name: adminer
     image: adminer
@@ -22,9 +27,12 @@ services:
     build: .
     ports:
       - "8000:8000"
+    volumes:
+      - ./app:/app
     command: "sh -c 'alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000 --reload'"
     depends_on:
-      - postgres_db
+      postgres_db:
+        condition: service_healthy
 
 volumes:
   postgresdata:
