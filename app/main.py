@@ -6,8 +6,8 @@ from views import router as api_router
 
 app = FastAPI()
 
-# temporary auto-sync here => later using alembic
-models.Base.metadata.create_all(bind=engine)
+# models.Base.metadata.create_all(bind=engine)
+# replaced by alembic command: python3 -m alembic upgrade head
 
 app.include_router(api_router)
 
