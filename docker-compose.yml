@@ -1,0 +1,23 @@
+version: "3"
+
+services:
+  postgres_db:
+    container_name: postgres_db
+    image: postgres:12.7
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: 'trust'
+      POSTGRES_DB: 'postgres_db'
+    restart: always
+    volumes:
+      - postgresdata:/var/lib/postgresql/data
+      - './db/initdb.d:/docker-entrypoint-initdb.d:ro'
+    ports:
+      - '5432:5432'
+  adminer:
+    container_name: adminer
+    image: adminer
+    ports:
+      - '8080:8080'
+
+volumes:
+  postgresdata:

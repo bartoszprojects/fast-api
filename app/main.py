@@ -1,8 +1,17 @@
-from typing import Union
+from database import SessionLocal
+from typing import Generator
 
 from fastapi import FastAPI
 
 app = FastAPI()
+
+
+def get_db() -> Generator:
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 @app.get("/")
