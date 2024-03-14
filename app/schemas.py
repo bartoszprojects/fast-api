@@ -59,20 +59,20 @@ class DeviceWholeSchema(DeviceSchema):
     dns_servers: List[DNSServerSchema] = element(tag='dns_servers', default_factory=list)
     interfaces: InterfacesSchema = element()
     routing_table: RoutesSchema = element()
-
-    def serialize_orm(self):
-        out = {}
-
-        for k, v in self.model_dump().items():
-            if isinstance(v, str):
-                out[k] = v
-            elif isinstance(v, list):
-                out[k] = [o.serialize_orm() for o in getattr(self, k)]
-            else:
-                out[k] = getattr(self, k).serialize_orm()
-
-        return DeviceModel(**out)
-
+    #
+    # def serialize_orm(self):
+    #     out = {}
+    #
+    #     for k, v in self.model_dump().items():
+    #         if isinstance(v, str):
+    #             out[k] = v
+    #         elif isinstance(v, list):
+    #             out[k] = [o.serialize_orm() for o in getattr(self, k)]
+    #         else:
+    #             out[k] = getattr(self, k).serialize_orm()
+    #
+    #     return DeviceModel(**out)
+    #
 
 class ResponseSchema(BaseXmlModel):
     status: str = element()
