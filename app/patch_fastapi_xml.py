@@ -21,9 +21,9 @@ def xml_decode(request: Request, model_field: ModelField, body: bytes) -> Option
     try:
         result: object = clazz.from_xml(body)
     except ValidationError as e:
-        raise StarletteHTTPException(str(e)) from e
+        raise BodyDecodeError(str(e)) from e
     except ParseError as e:
-        raise StarletteHTTPException(str(e)) from e
+        raise BodyDecodeError(str(e)) from e
     else:
         return result
 

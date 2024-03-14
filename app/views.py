@@ -31,6 +31,6 @@ def create_device(device: schemas.DeviceSchema = XmlBody(), db: Session = Depend
     return services.create_device(db=db, device=device)
 
 @router.post("/devices/whole_schema", response_model=schemas.ResponseSchema)
-def create_device_whole_schema(device: schemas.DeviceWholeSchema = XmlBody(), db: Session = Depends(get_db)):
+def create_device_whole_schema(device: schemas.DeviceSchema = XmlBody(), db: Session = Depends(get_db)):
     services.create_whole_schema_device(db, device)
     return schemas.ResponseSchema(status='ok')

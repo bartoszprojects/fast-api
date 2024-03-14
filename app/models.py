@@ -49,7 +49,7 @@ class RouteModel(Base):
     id = Column(Integer, primary_key=True)
     destination = Column(String)
     gateway = Column(String)
-    interface_name = Column(String)
+    interface = Column(String)
     device_id = Column(Integer, ForeignKey('devices.id'))
 
     device = relationship("DeviceModel", back_populates="routing_table")

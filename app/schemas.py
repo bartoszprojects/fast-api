@@ -1,39 +1,45 @@
 from pydantic import BaseModel
 from typing import List, get_type_hints
 
-from pydantic_xml import BaseXmlModel, element
+from pydantic_xml import BaseXmlModel, element, RootXmlModel
 
 from models import DNSServerModel, InterfaceModel, RouteModel, DeviceModel
 
 
 class DNSServerSchema(BaseXmlModel):
-    dns_server: str = element()
+    dns_server: str
 
     def serialize_orm(self):
         return DNSServerModel(**self.model_dump())
 
 
+class DNSServersSchema(BaseXmlModel):
+    dns_server: List[DNSServerSchema] = element()
+
+    def serialize_orm(self):
+        return [o.serialize_orm() for o in self.dns_server]
+
+
 class InterfaceSchema(BaseXmlModel):
-    name: str  = element()
-    ip_address: str  = element()
-    subnet_mask: str  = element()
-    status: str  = element()
+    name: str = element()
+    ip_address: str = element()
+    subnet_mask: str = element()
+    status: str = element()
 
     def serialize_orm(self):
         return InterfaceModel(**self.model_dump())
 
 
-
 class RouteSchema(BaseXmlModel):
     destination: str  = element()
     gateway: str  = element()
-    interface_name: str  = element()
+    interface: str = element()
 
     def serialize_orm(self):
         return RouteModel(**self.model_dump())
 
 
-class DeviceSchema(BaseXmlModel):
+class BaseDeviceSchema(BaseXmlModel):
     name: str = element()
     type: str = element()
     ip_address: str = element()
@@ -49,30 +55,28 @@ class InterfacesSchema(BaseXmlModel):
 
 
 class RoutesSchema(BaseXmlModel):
-    routes: List[RouteSchema] = element()
+    route: List[RouteSchema] = element()
 
     def serialize_orm(self):
-        return [o.serialize_orm() for o in self.routes]
+        return [o.serialize_orm() for o in self.route]
 
 
-class DeviceWholeSchema(DeviceSchema):
-    dns_servers: List[DNSServerSchema] = element(tag='dns_servers', default_factory=list)
+class DeviceSchema(BaseDeviceSchema, tag='device'):
+    dns_servers: DNSServersSchema = element()
     interfaces: InterfacesSchema = element()
     routing_table: RoutesSchema = element()
-    #
-    # def serialize_orm(self):
-    #     out = {}
-    #
-    #     for k, v in self.model_dump().items():
-    #         if isinstance(v, str):
-    #             out[k] = v
-    #         elif isinstance(v, list):
-    #             out[k] = [o.serialize_orm() for o in getattr(self, k)]
-    #         else:
-    #             out[k] = getattr(self, k).serialize_orm()
-    #
-    #     return DeviceModel(**out)
-    #
+
+    def serialize_orm(self):
+        out = {}
+
+        for k, v in self.model_dump().items():
+            if isinstance(v, str):
+                out[k] = v
+            else:
+                out[k] = getattr(self, k).serialize_orm()
+
+        return DeviceModel(**out)
+
 
 class ResponseSchema(BaseXmlModel):
     status: str = element()

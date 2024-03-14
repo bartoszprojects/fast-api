@@ -19,7 +19,7 @@ def create_device(db: Session, device: schemas.DeviceSchema):
     return device
 
 
-def create_whole_schema_device(db: Session, device: schemas.DeviceWholeSchema):
+def create_whole_schema_device(db: Session, device: schemas.DeviceSchema):
 
     print(device)
 
