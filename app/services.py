@@ -1,3 +1,4 @@
+import xmltodict
 from sqlalchemy.orm import Session
 
 import models
@@ -10,13 +11,16 @@ def get_devices(db: Session, skip: int = 0, limit: int = 100):
 
 
 def create_device(db: Session, device: schemas.DeviceSchema):
-    db_route = models.DeviceModel(**device.dict())
+
+    db_route = models.DeviceModel(**device.model_dump())
     db.add(db_route)
     db.commit()
     db.refresh(db_route)
-    return db_route
+    return device
+
 
 def create_whole_schema_device(db: Session, device: schemas.DeviceWholeSchema):
+
     parsed_schema = utils.parse_pydantic_schema(device)
     db_device = models.DeviceModel(**parsed_schema)
 

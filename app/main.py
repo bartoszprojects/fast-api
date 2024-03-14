@@ -1,13 +1,19 @@
-from database import SessionLocal, engine
-from typing import Generator
+from typing import TypeVar
+
 from fastapi import FastAPI
-import models
+from fastapi_xml import XmlAppResponse, XmlRoute, add_openapi_extension, XmlBody
+from pydantic import BaseModel
+import patch_fastapi_xml
+
 from views import router as api_router
 
-app = FastAPI()
+T = TypeVar("T", bound=BaseModel)
 
-# models.Base.metadata.create_all(bind=engine)
-# replaced by alembic command: python3 -m alembic upgrade head
-
+app = FastAPI(title="FastAPI::XML", default_response_class=XmlAppResponse)
 app.include_router(api_router)
+
+app.router.route_class = XmlRoute
+
+add_openapi_extension(app)
+
 
