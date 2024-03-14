@@ -21,10 +21,12 @@ def create_device(db: Session, device: schemas.DeviceSchema):
 
 def create_whole_schema_device(db: Session, device: schemas.DeviceWholeSchema):
 
-    parsed_schema = utils.parse_pydantic_schema(device)
-    db_device = models.DeviceModel(**parsed_schema)
+    print(device)
+
+    db_device = device.serialize_orm()
+
+    print(db_device.dns_servers)
 
     db.add(db_device)
     db.commit()
     db.refresh(db_device)
-    return db_device
