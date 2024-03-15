@@ -11,7 +11,7 @@ def get_devices(db: Session, skip: int = 0, limit: int = 100):
 
 
 def create_device(db: Session, device: schemas.DeviceSchema):
-
+    # there is no nested data so I can just make model_dump() here
     db_route = models.DeviceModel(**device.model_dump())
     db.add(db_route)
     db.commit()
@@ -20,13 +20,8 @@ def create_device(db: Session, device: schemas.DeviceSchema):
 
 
 def create_whole_schema_device(db: Session, device: schemas.DeviceSchema):
-
-    print(device)
-
+    # there is nested data so it calls Pydantic Schema method to map and convert data
     db_device = device.serialize_orm()
-
-    print(db_device.dns_servers)
-
     db.add(db_device)
     db.commit()
     db.refresh(db_device)

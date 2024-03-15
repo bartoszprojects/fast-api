@@ -1,30 +1,15 @@
-from fastapi_xml import XmlBody, XmlRoute, XmlAppResponse
+from fastapi_xml import XmlBody, XmlRoute
 from pydantic_xml import element, BaseXmlModel
 
 import schemas, services
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends
 
-from typing import List
 from dependencies import get_db
 
 router = APIRouter()
 router.route_class = XmlRoute
 
-
-
-
-class HelloWorldReq(BaseXmlModel):
-    message: str = element()
-
-
-class HelloWorldRes(BaseXmlModel):
-    message: str = element()
-
-
-@router.post("/", response_model=HelloWorldReq)
-async def process_item(item: HelloWorldReq = XmlBody()):
-    return item
 
 @router.post("/devices/", response_model=schemas.DeviceSchema)
 def create_device(device: schemas.DeviceSchema = XmlBody(), db: Session = Depends(get_db)):

@@ -11,11 +11,13 @@ from starlette.requests import Request
 from fastapi_xml.decoder import XmlDecoder, BodyDecodeError
 from fastapi_xml.response import XmlResponse
 
-from starlette.exceptions import HTTPException as StarletteHTTPException
 
-# to dostaje body (Device) i wrzuca do modedlu pydantica. normalnie nie dziala basexmlmodel bo fastapi-xml obsluguje tylko dataklasy a nie obsluguuje pydantica
+# To work with FASTAPI & PYDANTIC & XML - I am using fastapi_xml library
+# ... but this library converts XML to DataClass. Then it not works with Pydantic Schemas. To avoid keeping
+# DataClasses and Pydantic Schemas together - I reworked fastapi_xml.decode method to make XML -> PYDANTIC SCHEMA
 
 def xml_decode(request: Request, model_field: ModelField, body: bytes) -> Optional[Dict[str, Any]]:
+    # here I am changing the original fastapi_xml lib method that works with DataClasses to my pydanticSchema from endpoints
     clazz = model_field.type_
 
     try:
