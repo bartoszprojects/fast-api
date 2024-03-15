@@ -1,85 +1,89 @@
-from pydantic import BaseModel
-from typing import List, get_type_hints
-
-from pydantic_xml import BaseXmlModel, element, RootXmlModel
-
-from models import DNSServerModel, InterfaceModel, RouteModel, DeviceModel
+import dataclasses
+from dataclasses import field
+from typing import List
+import models
 
 
-class DNSServerSchema(BaseXmlModel):
-    dns_server: str
+# Define the equivalent dataclass for DNSServerSchema
+@dataclasses.dataclass
+class DNSServerDataClass:
+    dns_server: str = dataclasses.field(metadata={"name": "dns_server", "type": "Element"})
 
     def serialize_orm(self):
-        return DNSServerModel(**self.model_dump())
+        return models.DNSServerModel(dns_server=self.dns_server)
 
-
-class DNSServersSchema(BaseXmlModel):
-    dns_server: List[DNSServerSchema] = element()
+# Define the equivalent dataclass for DNSServersSchema
+@dataclasses.dataclass
+class DNSServersDataClass:
+    dns_server: List[DNSServerDataClass] = dataclasses.field(default_factory=list)
 
     def serialize_orm(self):
         return [o.serialize_orm() for o in self.dns_server]
 
-
-class InterfaceSchema(BaseXmlModel):
-    name: str = element()
-    ip_address: str = element()
-    subnet_mask: str = element()
-    status: str = element()
-
-    def serialize_orm(self):
-        return InterfaceModel(**self.model_dump())
-
-
-class RouteSchema(BaseXmlModel):
-    destination: str = element()
-    gateway: str = element()
-    interface: str = element()
+# Define the equivalent dataclass for InterfaceSchema
+@dataclasses.dataclass
+class InterfaceDataClass:
+    name: str = dataclasses.field(metadata={"name": "name", "type": "Element"})
+    ip_address: str = dataclasses.field(metadata={"name": "ip_address", "type": "Element"})
+    subnet_mask: str = dataclasses.field(metadata={"name": "subnet_mask", "type": "Element"})
+    status: str = dataclasses.field(metadata={"name": "status", "type": "Element"})
 
     def serialize_orm(self):
-        return RouteModel(**self.model_dump())
+        return models.InterfaceModel(name=self.name, ip_address=self.ip_address, subnet_mask=self.subnet_mask, status=self.status)
 
+# Define the equivalent dataclass for RouteSchema
+@dataclasses.dataclass
+class RouteDataClass:
+    destination: str = dataclasses.field(metadata={"name": "destination", "type": "Element"})
+    gateway: str = dataclasses.field(metadata={"name": "gateway", "type": "Element"})
+    interface: str = dataclasses.field(metadata={"name": "interface", "type": "Element"})
 
-class BaseDeviceSchema(BaseXmlModel, tag='DeviceSchema-Input'):
-    name: str = element()
-    type: str = element()
-    ip_address: str = element()
-    subnet_mask: str = element()
-    gateway: str = element()
+    def serialize_orm(self):
+        return models.RouteModel(destination=self.destination, gateway=self.gateway, interface=self.interface)
 
+# Define the equivalent dataclass for BaseDeviceSchema
+@dataclasses.dataclass
+class BaseDeviceDataClass:
+    name: str = dataclasses.field(metadata={"name": "name", "type": "Element"})
+    type: str = dataclasses.field(metadata={"name": "type", "type": "Element"})
+    ip_address: str = dataclasses.field(metadata={"name": "ip_address", "type": "Element"})
+    subnet_mask: str = dataclasses.field(metadata={"name": "subnet_mask", "type": "Element"})
+    gateway: str = dataclasses.field(metadata={"name": "gateway", "type": "Element"})
 
-class InterfacesSchema(BaseXmlModel):
-    interface: List[InterfaceSchema] = element()
+# Define the equivalent dataclass for InterfacesSchema
+@dataclasses.dataclass
+class InterfacesDataClass:
+    interface: List[InterfaceDataClass] = dataclasses.field(default_factory=list)
 
     def serialize_orm(self):
         return [o.serialize_orm() for o in self.interface]
 
-
-class RoutesSchema(BaseXmlModel):
-    route: List[RouteSchema] = element()
+# Define the equivalent dataclass for RoutesSchema
+@dataclasses.dataclass
+class RoutesDataClass:
+    route: List[RouteDataClass] = dataclasses.field(default_factory=list)
 
     def serialize_orm(self):
         return [o.serialize_orm() for o in self.route]
 
+# Define the equivalent dataclass for DeviceSchema
+@dataclasses.dataclass
+class DeviceDataClass:
+    name: str
+    type: str
+    ip_address: str
+    subnet_mask: str
+    gateway: str
+    dns_servers: DNSServersDataClass
+    interfaces: InterfacesDataClass
+    routing_table: RoutesDataClass
 
-class DeviceSchema(BaseDeviceSchema, tag='DeviceSchema-Input'):
-    dns_servers: DNSServersSchema = element()
-    interfaces: InterfacesSchema = element()
-    routing_table: RoutesSchema = element()
-
-    # to handle nested data I created my own method that mapping each Model Children and inside
-    # it makes 'model_dump()'
     def serialize_orm(self):
-        out = {}
+        return models.DeviceModel(name=self.name, type=self.type, ip_address=self.ip_address, subnet_mask=self.subnet_mask,
+                           gateway=self.gateway, dns_servers=self.dns_servers.serialize_orm(),
+                           interfaces=self.interfaces.serialize_orm(), routing_table=self.routing_table.serialize_orm())
 
-        for k, v in self.model_dump().items():
-            if isinstance(v, str):
-                out[k] = v
-            else:
-                out[k] = getattr(self, k).serialize_orm()
+@dataclasses.dataclass
+class ResponseSchemaDataClass:
+    status: str = dataclasses.field(metadata={"name": "status", "type": "Element"})
 
-        # here I return Model Schema with mapped & dumped data and I forward it to service to make db action
-        return DeviceModel(**out)
-
-
-class ResponseSchema(BaseXmlModel):
-    status: str = element()

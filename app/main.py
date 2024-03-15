@@ -3,7 +3,7 @@ from typing import TypeVar
 from fastapi import FastAPI
 from fastapi_xml import XmlAppResponse, XmlRoute, add_openapi_extension
 from pydantic import BaseModel
-import patch_fastapi_xml
+# import patch_fastapi_xml
 
 from views import router as api_router
 
